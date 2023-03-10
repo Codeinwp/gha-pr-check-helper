@@ -29,3 +29,4 @@ jobs:
 
 ### Other notes:
 In case there are some items that are not applicable in given checklist they can be ~stroked through~ and this action will ignore them.
+
