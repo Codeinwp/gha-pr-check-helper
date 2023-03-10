@@ -1,7 +1,7 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
 
-const TASK_LIST_ITEM = /(?:^|\n)\s*-\s+\[([ xX])\]\s+((?!~).*)/g;
+const TASK_LIST_ITEM = /(?:^|\n)\s*[-\*]\s+\[([ xX])\]\s+((?!~).*)/g;
 
 async function action() {
     const bodyList = [];
@@ -21,16 +21,19 @@ async function action() {
         bodyList.push(issue.body);
     }
 
-    const { data: comments } = await octokit.rest.issues.listComments({
-        ...github.context.repo,
-        issue_number: github.context.issue.number,
-    });
+    const onlyCheckBody = core.getInput("onlyCheckBody");
+    if (onlyCheckBody != "true") {
+        const { data: comments } = await octokit.rest.issues.listComments({
+            ...github.context.repo,
+            issue_number: github.context.issue.number,
+        });
 
-    for (let comment of comments) {
-        bodyList.push(comment.body);
+        for (let comment of comments) {
+            bodyList.push(comment.body);
+        }
     }
 
-    // Check each comment for a checklist
+    // Check each body for task list items
     let containsChecklist = false;
     const incompleteItems = [];
     for (let body of bodyList) {

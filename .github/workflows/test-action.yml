@@ -12,4 +12,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           requireChecklist: true
+          onlyCheckBody: true
 
