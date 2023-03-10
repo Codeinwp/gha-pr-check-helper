@@ -1,11 +1,11 @@
 name: Pull Request Checklist Helper
-description: Ensure that any checklists pull request body is completed
+description: Ensure that any checklists pull request body is completed, and add labels to the pull request.
 runs:
   using: node16
   main: dist/index.js
 branding:
   icon: check-circle
-  color: gray-dark
+  color: blue
 inputs:
   token:
     description: The GitHub API token to use
