@@ -16,9 +16,6 @@ async function action() {
         issue_number: github.context.issue.number,
     });
 
-    console.log( github.context.issue.number );
-    console.log( issue );
-
     if (issue.body) {
         bodyList.push(issue.body);
     }
