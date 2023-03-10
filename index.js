@@ -5,6 +5,8 @@ const TASK_LIST_ITEM = /(?:^|\n)\s*[-\*]\s+\[([ xX])\]\s+((?!~).*)/g;
 
 async function action() {
     const bodyList = [];
+    const completedLabel = core.getInput("completedLabel") || "checklist-complete";
+    const incompleteLabel = core.getInput("incompleteLabel") || "checklist-incomplete";
 
     const token = core.getInput("token");
     const octokit = github.getOctokit(token);
@@ -53,7 +55,22 @@ async function action() {
         }
     }
 
+    const response = await octokit.rest.issues.listLabelsOnIssue({
+        ...github.context.repo,
+        issue_number: github.context.issue.number,
+    } );
+
+    const incompleteLabelPresent = response.data.find(label => label.name === incompleteLabel);
+
     if (incompleteItems.length > 0) {
+        if (!incompleteLabelPresent) {
+            await octokit.rest.issues.addLabels({
+                ...github.context.repo,
+                issue_number: github.context.issue.number,
+                labels: [incompleteLabel],
+            } );
+        }
+        console.log(`Labeled: ${incompleteLabel}`);
         core.setFailed(
             "The following items are not marked as completed: " +
             incompleteItems.join(", ")
@@ -70,6 +87,21 @@ async function action() {
     }
 
     console.log("There are no incomplete task list items");
+
+    if (incompleteLabelPresent) {
+        await octokit.rest.issues.removeLabel({
+            ...github.context.repo,
+            issue_number: github.context.issue.number,
+            name: incompleteLabel,
+        } );
+    }
+    await octokit.rest.issues.addLabels({
+        ...github.context.repo,
+        issue_number: github.context.issue.number,
+        labels: [completedLabel],
+    } );
+
+    console.log(`Labeled: ${completedLabel}`);
 }
 
 if (require.main === module) {
