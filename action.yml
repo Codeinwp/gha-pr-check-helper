@@ -1,5 +1,7 @@
 name: Pull Request Checklist Helper
-description: Ensure that any checklists pull request body is completed, and add labels to the pull request.
+description: >-
+  Ensure that any checklists pull request body is completed, and add labels to
+  the pull request.
 runs:
   using: node16
   main: dist/index.js
@@ -22,8 +24,8 @@ inputs:
   completedLabel:
     description: The label to add when the checklist is completed
     required: false
-    default: 'checklist-completed'
+    default: checklist-completed
   incompleteLabel:
     description: The label to add when the checklist is incomplete
     required: false
-    default: 'checklist-incomplete'
+    default: checklist-incomplete
