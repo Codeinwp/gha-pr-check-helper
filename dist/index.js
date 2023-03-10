@@ -64,8 +64,16 @@ async function action() {
     } );
 
     const incompleteLabelPresent = response.data.find(label => label.name === incompleteLabel);
+    const completedLabelPresent = response.data.find(label => label.name === completedLabel);
 
     if (incompleteItems.length > 0) {
+        if (completedLabelPresent) {
+            await octokit.rest.issues.removeLabel({
+                ...github.context.repo,
+                issue_number: github.context.issue.number,
+                name: completedLabel,
+            } );
+        }
         if (!incompleteLabelPresent) {
             await octokit.rest.issues.addLabels({
                 ...github.context.repo,
