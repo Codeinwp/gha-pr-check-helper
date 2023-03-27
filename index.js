@@ -45,6 +45,8 @@ async function action() {
         issue_number: github.context.issue.number,
     } );
     const skipLabelPresent = response.data.find(label => label.name === skipLabel);
+    console.log( "skipLabelPresent: " + skipLabelPresent );
+    console.log( "skipLabel used: " + skipLabel );
 
     // Check each body for task list items
     let containsChecklist = false;
