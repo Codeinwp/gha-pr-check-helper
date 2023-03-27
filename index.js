@@ -16,6 +16,9 @@ async function action() {
         REGEX_MATCHER = TASK_LIST_ITEM_ALLOW_STRIKETHROUGH;
     }
 
+    console.log( "REGEX_MATCHER: " + REGEX_MATCHER );
+    console.log( "allowStrikethrough: " + allowStrikethrough );
+
     const token = core.getInput("token");
     const octokit = github.getOctokit(token);
 
