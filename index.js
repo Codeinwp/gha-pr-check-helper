@@ -16,9 +16,6 @@ async function action() {
         REGEX_MATCHER = TASK_LIST_ITEM_ALLOW_STRIKETHROUGH;
     }
 
-    console.log( "REGEX_MATCHER: " + REGEX_MATCHER );
-    console.log( "allowStrikethrough: " + allowStrikethrough );
-
     const token = core.getInput("token");
     const octokit = github.getOctokit(token);
 
@@ -48,8 +45,6 @@ async function action() {
         issue_number: github.context.issue.number,
     } );
     const skipLabelPresent = response.data.find(label => label.name === skipLabel);
-    console.log( "skipLabelPresent: " + skipLabelPresent );
-    console.log( "skipLabel used: " + skipLabel );
 
     // Check each body for task list items
     let containsChecklist = false;
