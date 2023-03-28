@@ -7,12 +7,20 @@
 const core = __nccwpck_require__(2614);
 const github = __nccwpck_require__(8686);
 
-const TASK_LIST_ITEM = /(?:^|\n)\s*[-\*]\s+\[([ xX])\]\s+((?!~).*)/g;
+const TASK_LIST_ITEM_ALLOW_STRIKETHROUGH = /(?:^|\n)\s*[-\*]\s+\[([ xX])\]\s+((?!~).*)/g;
+const TASK_LIST_ITEM_NO_STRIKETHROUGH = /(?:^|\n)\s*[-\*]\s+\[([ xX])\]\s+(.*)/g;
 
 async function action() {
     const bodyList = [];
     const completedLabel = core.getInput("completedLabel") || "checklist-complete";
     const incompleteLabel = core.getInput("incompleteLabel") || "checklist-incomplete";
+    const allowStrikethrough = core.getInput("allowStrikethrough") || "false";
+    const skipLabel = core.getInput("skipLabel") || "allow-checklist-skip";
+
+    let REGEX_MATCHER = TASK_LIST_ITEM_NO_STRIKETHROUGH;
+    if ( allowStrikethrough == "true" ) {
+        REGEX_MATCHER = TASK_LIST_ITEM_ALLOW_STRIKETHROUGH;
+    }
 
     const token = core.getInput("token");
     const octokit = github.getOctokit(token);
@@ -38,30 +46,33 @@ async function action() {
         }
     }
 
-    // Check each body for task list items
-    let containsChecklist = false;
-    const incompleteItems = [];
-    for (let body of bodyList) {
-        const matches = [...body.matchAll(TASK_LIST_ITEM)];
-        for (let item of matches) {
-            const is_complete = item[1] != " ";
-            const item_text = item[2];
-
-            containsChecklist = true;
-
-            if (is_complete) {
-                console.log("Completed task list item: " + item[2]);
-            } else {
-                console.log("Incomplete task list item: " + item[2]);
-                incompleteItems.push(item[2]);
-            }
-        }
-    }
-
     const response = await octokit.rest.issues.listLabelsOnIssue({
         ...github.context.repo,
         issue_number: github.context.issue.number,
     } );
+    const skipLabelPresent = response.data.find(label => label.name === skipLabel);
+
+    // Check each body for task list items
+    let containsChecklist = false;
+    const incompleteItems = [];
+    if (!skipLabelPresent) {
+        for (let body of bodyList) {
+            const matches = [...body.matchAll(REGEX_MATCHER)];
+            for (let item of matches) {
+                const is_complete = item[1] != " ";
+                const item_text = item[2];
+
+                containsChecklist = true;
+
+                if (is_complete) {
+                    console.log("Completed task list item: " + item_text);
+                } else {
+                    console.log("Incomplete task list item: " + item_text);
+                    incompleteItems.push(item_text);
+                }
+            }
+        }
+    }
 
     const incompleteLabelPresent = response.data.find(label => label.name === incompleteLabel);
     const completedLabelPresent = response.data.find(label => label.name === completedLabel);
@@ -90,7 +101,7 @@ async function action() {
     }
 
     const requireChecklist = core.getInput("requireChecklist");
-    if (requireChecklist != "false" && !containsChecklist) {
+    if (requireChecklist != "false" && !containsChecklist && !skipLabelPresent) {
         core.setFailed(
             "No task list was present and requireChecklist is turned on"
         );

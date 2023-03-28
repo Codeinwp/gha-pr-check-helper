@@ -21,6 +21,10 @@ inputs:
     description: Only check the pull request body
     required: false
     default: 'false'
+  allowStrikeThrough:
+    description: Allow strikethrough items
+    required: false
+    default: 'false'
   completedLabel:
     description: The label to add when the checklist is completed
     required: false
@@ -29,3 +33,7 @@ inputs:
     description: The label to add when the checklist is incomplete
     required: false
     default: checklist-incomplete
+  skipLabel:
+    description: The label used to skip the checklist
+    required: false
+    default: allow-checklist-skip
