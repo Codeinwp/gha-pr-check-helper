@@ -3,7 +3,7 @@ description: >-
   Ensure that any checklists pull request body is completed, and add labels to
   the pull request.
 runs:
-  using: node16
+  using: node20
   main: dist/index.js
 branding:
   icon: check-circle
